@@ -226,7 +226,7 @@ TEMPLATE = """<!doctype html>
       <a class="reader__download" href="/read/{pdf}" download>Download the PDF <span class="reader__size">({size} MB)</span></a>
     </div>
 
-    <div class="reader__controls" id="reader-controls" hidden>
+    <div class="reader__controls" id="reader-controls">
       <label class="reader__toc">
         <span class="sr-only">Jump to section</span>
         <select id="reader-toc">
@@ -243,11 +243,11 @@ TEMPLATE = """<!doctype html>
     </div>
 
     <div class="reader__stage-wrap" id="reader-wrap">
-      <button type="button" class="reader__arrow reader__arrow--prev" id="reader-prev" aria-label="Previous page" hidden><span aria-hidden="true">&#8249;</span></button>
+      <button type="button" class="reader__arrow reader__arrow--prev" id="reader-prev" aria-label="Previous page"><span aria-hidden="true">&#8249;</span></button>
       <ol class="book" id="book" data-total="{total}">
 {items}
       </ol>
-      <button type="button" class="reader__arrow reader__arrow--next" id="reader-next" aria-label="Next page" hidden><span aria-hidden="true">&#8250;</span></button>
+      <button type="button" class="reader__arrow reader__arrow--next" id="reader-next" aria-label="Next page"><span aria-hidden="true">&#8250;</span></button>
     </div>
   </main>
 

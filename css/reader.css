@@ -18,6 +18,7 @@
 .banner--bar .site-header { padding-block: 1rem; }
 
 .reader {
+  overflow-anchor: none;
   width: 100%;
   padding: 1.25rem clamp(0.75rem, 3vw, 2.5rem) 2.5rem;
   line-height: 1.4;
@@ -35,7 +36,10 @@
 .reader__head h1 { margin: 0; font-size: clamp(1.25rem, 2.5vw, 1.75rem); }
 .reader__size { font-weight: 400; white-space: nowrap; }
 
-.reader__controls {
+/* The controls only do anything with JavaScript, so they stay hidden without it.
+   The .js-reader class is set before the page is drawn, so nothing jumps. */
+.reader__controls { display: none; }
+.js-reader .reader__controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -43,7 +47,6 @@
   max-width: 1600px;
   margin: 0 auto 0.75rem;
 }
-.reader__controls[hidden] { display: none; }
 .reader__slider { flex: 1 1 10rem; display: flex; }
 .reader__slider input { width: 100%; accent-color: var(--ink); }
 .reader__status { min-width: 9.5em; font-variant-numeric: tabular-nums; }
@@ -157,7 +160,9 @@
 .js-reader.is-single .page.is-current { display: block; animation: page-in 0.25s ease-out; }
 @keyframes page-in { from { opacity: 0; } }
 
-.reader__arrow {
+.reader__arrow { display: none; }
+.js-reader .reader__arrow {
+  display: block;
   flex: none;
   width: 3rem;
   height: 3rem;
@@ -169,7 +174,6 @@
   font: 400 2rem/1 Georgia, serif;
   cursor: pointer;
 }
-.reader__arrow[hidden] { display: none; }
 .reader__arrow:hover:not(:disabled) { background: var(--ink); color: #fff; }
 .reader__arrow:disabled { opacity: 0.3; cursor: default; }
 

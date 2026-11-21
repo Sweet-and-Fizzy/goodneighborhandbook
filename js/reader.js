@@ -31,6 +31,7 @@
   var single = singleQuery.matches;
   var current = 1; // the page being read (in a spread, either page of it)
   var turning = false;
+  var started = false;
 
   function clamp(n) { return Math.min(total, Math.max(1, n)); }
 
@@ -63,7 +64,10 @@
     prevBtn.disabled = first <= 1;
     nextBtn.disabled = last >= total;
     preload(current);
-    if (window.history && history.replaceState) history.replaceState(null, "", "#p" + first);
+    // Keep the address in step with the page, but not on first load: a "#p1"
+    // there would make the browser scroll down to the book.
+    if (started && window.history && history.replaceState) history.replaceState(null, "", "#p" + first);
+    started = true;
   }
 
   function face(n, cls) {
@@ -149,9 +153,6 @@
   }
 
   // ---- wire everything up ----
-  controls.hidden = false;
-  prevBtn.hidden = false;
-  nextBtn.hidden = false;
 
   prevBtn.addEventListener("click", prev);
   nextBtn.addEventListener("click", next);
