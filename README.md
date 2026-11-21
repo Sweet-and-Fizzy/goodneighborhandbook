@@ -13,6 +13,7 @@ publishes the `main` branch as-is.
 | About Us text, contributors, funding partners | `about-us/index.html` |
 | Pickup locations and contact person | `get-a-copy/index.html` |
 | "Page not found" page | `404.html` |
+| The online handbook reader | generated, see "Updating the handbook" below |
 | Colors, fonts, spacing | `css/site.css` |
 
 Editable sections are marked with `<!-- EDIT: ... -->` comments.
@@ -21,10 +22,8 @@ Editable sections are marked with `<!-- EDIT: ... -->` comments.
 
 There is no shared template, so these have to be changed everywhere they appear.
 
-- **The menu** is in all four `.html` files.
-- **The "Read the Handbook" link** (the Flipsnack address) is in the menu of all
-  four files and on the home page button. If the handbook moves, search for
-  `flipsnack.com` and replace every one.
+- **The menu** is in all four `.html` files, and in `tools/build-reader.py` for
+  the reader page.
 - **The footer and its year** are in `index.html`, `about-us/index.html` and
   `get-a-copy/index.html`.
 - **Page title and description.** The lines near the top of each page
@@ -34,7 +33,22 @@ There is no shared template, so these have to be changed everywhere they appear.
   `robots.txt` and in `sitemap.xml`. It only matters if the domain changes.
 
 Adding a new page means copying an existing page folder, adding it to the menu
-in all four files, and adding a line to `sitemap.xml`.
+in all four files and in `tools/build-reader.py`, and adding a line to
+`sitemap.xml`.
+
+## Updating the handbook
+
+The reader at `/read/` is generated from the handbook PDF: one image per page,
+the contents menu from the PDF's bookmarks, and the clickable areas from the
+PDF's links. Do not edit the files in `read/` by hand. When the handbook is
+revised, run this from the repository folder and commit everything it changes:
+
+    python3 tools/build-reader.py "path/to/the-new-handbook.pdf"
+
+The script expects the PDF as the designer exports it (a cover page, two-page
+spreads, a back cover). What it needs installed is listed at the top of the
+script. The reader's behaviour is in `js/reader.js` and its look in
+`css/reader.css`.
 
 ## Making a change on GitHub
 

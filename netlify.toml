@@ -21,6 +21,11 @@
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
+[[headers]]
+  for = "/read/pages/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
 # Old WordPress address of the home page
 [[redirects]]
   from = "/sample-page/*"
