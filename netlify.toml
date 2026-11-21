@@ -1,6 +1,6 @@
 # No build step: Netlify serves this folder as-is.
 [build]
-  publish = "."
+  publish = "public"
 
 [[headers]]
   for = "/*"
@@ -18,11 +18,6 @@
 
 [[headers]]
   for = "/images/*"
-  [headers.values]
-    Cache-Control = "public, max-age=604800"
-
-[[headers]]
-  for = "/read/pages/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
