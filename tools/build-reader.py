@@ -239,14 +239,20 @@ TEMPLATE = """<!doctype html>
         <input type="range" id="reader-slider" min="1" max="{total}" value="1" step="1">
       </label>
       <output id="reader-status" class="reader__status" aria-live="polite">Page 1 of {total}</output>
+      <span class="reader__zoom" role="group" aria-label="Zoom">
+        <button type="button" id="reader-zoom-out" class="reader__button" aria-label="Zoom out" disabled>&minus;</button>
+        <button type="button" id="reader-zoom-in" class="reader__button" aria-label="Zoom in">+</button>
+      </span>
       <button type="button" id="reader-full" class="reader__button">Full screen</button>
     </div>
 
     <div class="reader__stage-wrap" id="reader-wrap">
       <button type="button" class="reader__arrow reader__arrow--prev" id="reader-prev" aria-label="Previous page"><span aria-hidden="true">&#8249;</span></button>
+      <div class="reader__viewport" id="reader-viewport">
       <ol class="book" id="book" data-total="{total}">
 {items}
       </ol>
+      </div>
       <button type="button" class="reader__arrow reader__arrow--next" id="reader-next" aria-label="Next page"><span aria-hidden="true">&#8250;</span></button>
     </div>
   </main>

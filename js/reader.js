@@ -26,6 +26,11 @@
   var status = document.getElementById("reader-status");
   var toc = document.getElementById("reader-toc");
   var fullBtn = document.getElementById("reader-full");
+  var viewport = document.getElementById("reader-viewport");
+  var zoomInBtn = document.getElementById("reader-zoom-in");
+  var zoomOutBtn = document.getElementById("reader-zoom-out");
+  var ZOOMS = [1, 1.5, 2, 3]; // matches the .zoom-1 to .zoom-3 rules in reader.css
+  var zoom = 0;               // index into ZOOMS
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var single = singleQuery.matches;
@@ -64,6 +69,7 @@
     prevBtn.disabled = first <= 1;
     nextBtn.disabled = last >= total;
     preload(current);
+    sharpen();
     // Keep the address in step with the page, but not on first load: a "#p1"
     // there would make the browser scroll down to the book.
     if (started && window.history && history.replaceState) history.replaceState(null, "", "#p" + first);
@@ -152,6 +158,62 @@
     return m ? clamp(parseInt(m[1], 10)) : null;
   }
 
+  // ---- zoom ----
+  // When zoomed, ask for the large page images whatever the screen size.
+  function sharpen() {
+    if (!zoom) return;
+    var s = spreadOf(current);
+    [single ? current : s.left, single ? null : s.right].forEach(function (n) {
+      if (n) image(n).sizes = "300vw";
+    });
+  }
+
+  // Change zoom level, keeping the point (fx, fy) of the window where it is.
+  // fx and fy are fractions of the viewport; the centre by default.
+  function setZoom(level, fx, fy) {
+    level = Math.min(ZOOMS.length - 1, Math.max(0, level));
+    if (level === zoom) return;
+    if (fx === undefined) { fx = 0.5; fy = 0.5; }
+    var w = viewport.clientWidth, h = viewport.clientHeight;
+    var px = (viewport.scrollLeft + fx * w) / (w * ZOOMS[zoom]);
+    var py = (viewport.scrollTop + fy * h) / (h * ZOOMS[zoom]);
+    viewport.classList.remove("zoom-" + zoom);
+    zoom = level;
+    viewport.classList.toggle("is-zoomed", zoom > 0);
+    if (zoom) viewport.classList.add("zoom-" + zoom);
+    viewport.scrollLeft = px * w * ZOOMS[zoom] - fx * w;
+    viewport.scrollTop = py * h * ZOOMS[zoom] - fy * h;
+    zoomOutBtn.disabled = zoom === 0;
+    zoomInBtn.disabled = zoom === ZOOMS.length - 1;
+    sharpen();
+  }
+
+  zoomInBtn.addEventListener("click", function () { setZoom(zoom + 1); });
+  zoomOutBtn.addEventListener("click", function () { setZoom(zoom - 1); });
+  viewport.addEventListener("dblclick", function (e) {
+    if (e.target.closest && e.target.closest(".hot")) return;
+    var r = viewport.getBoundingClientRect();
+    setZoom(zoom ? 0 : 2, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+  });
+
+  // Drag with the mouse to move around a zoomed page.
+  var drag = null;
+  viewport.addEventListener("mousedown", function (e) {
+    if (!zoom || e.button !== 0 || (e.target.closest && e.target.closest(".hot"))) return;
+    drag = { x: e.clientX, y: e.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
+    viewport.classList.add("is-dragging");
+    e.preventDefault();
+  });
+  window.addEventListener("mousemove", function (e) {
+    if (!drag) return;
+    viewport.scrollLeft = drag.left - (e.clientX - drag.x);
+    viewport.scrollTop = drag.top - (e.clientY - drag.y);
+  });
+  window.addEventListener("mouseup", function () {
+    drag = null;
+    viewport.classList.remove("is-dragging");
+  });
+
   // ---- wire everything up ----
 
   prevBtn.addEventListener("click", prev);
@@ -174,6 +236,9 @@
     else if (e.key === "ArrowLeft" || e.key === "PageUp") { prev(); e.preventDefault(); }
     else if (e.key === "Home") { go(1, false); e.preventDefault(); }
     else if (e.key === "End") { go(total, false); e.preventDefault(); }
+    else if (e.key === "+" || e.key === "=") { setZoom(zoom + 1); e.preventDefault(); }
+    else if (e.key === "-") { setZoom(zoom - 1); e.preventDefault(); }
+    else if (e.key === "0") { setZoom(0); e.preventDefault(); }
   });
 
   // Swipe left or right on a touch screen.
@@ -186,6 +251,7 @@
     if (startX === null) return;
     var dx = e.clientX - startX, dy = e.clientY - startY;
     startX = null;
+    if (zoom) return; // when zoomed, a swipe moves around the page instead
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { if (dx < 0) next(); else prev(); }
   });
   book.addEventListener("pointercancel", function () { startX = null; });
