@@ -330,6 +330,7 @@ TEMPLATE = """<!doctype html>
 <body class="reader-page">
   <a class="skip-link" href="#main">Skip to main content</a>
 
+  <div class="reader-screen">
   <header class="banner banner--bar">
     <!-- MENU: repeated in every page; for this page, change it in tools/build-reader.py -->
     <div class="site-header">
@@ -354,6 +355,16 @@ TEMPLATE = """<!doctype html>
     </div>
     <p class="sr-only">If you use a screen reader, the PDF download is the best way to read the handbook: it is tagged so that headings and text are read in the right order. The page text included below is extracted automatically and may be out of order.</p>
 
+    <div class="reader__stage-wrap" id="reader-wrap">
+      <button type="button" class="reader__arrow reader__arrow--prev" id="reader-prev" aria-label="Previous page"><span aria-hidden="true">&#8249;</span></button>
+      <div class="reader__viewport" id="reader-viewport">
+      <ol class="book" id="book" data-total="{total}">
+{items}
+      </ol>
+      </div>
+      <button type="button" class="reader__arrow reader__arrow--next" id="reader-next" aria-label="Next page"><span aria-hidden="true">&#8250;</span></button>
+    </div>
+
     <div class="reader__controls" id="reader-controls">
 {contents}      <label class="reader__slider">
         <span class="sr-only">Page</span>
@@ -365,18 +376,10 @@ TEMPLATE = """<!doctype html>
         <button type="button" id="reader-zoom-in" class="reader__button" aria-label="Zoom in">+</button>
       </span>
       <button type="button" id="reader-full" class="reader__button">Full screen</button>
-    </div>
-
-    <div class="reader__stage-wrap" id="reader-wrap">
-      <button type="button" class="reader__arrow reader__arrow--prev" id="reader-prev" aria-label="Previous page"><span aria-hidden="true">&#8249;</span></button>
-      <div class="reader__viewport" id="reader-viewport">
-      <ol class="book" id="book" data-total="{total}">
-{items}
-      </ol>
-      </div>
-      <button type="button" class="reader__arrow reader__arrow--next" id="reader-next" aria-label="Next page"><span aria-hidden="true">&#8250;</span></button>
+      <a class="reader__download reader__download--bar" href="/read/{pdf}" download>Download the PDF <span class="reader__size">({size} MB)</span></a>
     </div>
   </main>
+  </div>
 
   <footer class="site-footer">
     <p>© 2026 <a href="https://eastyellowstonecollaborative.org">East Yellowstone Collaborative</a></p>

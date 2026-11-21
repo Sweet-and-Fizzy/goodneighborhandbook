@@ -1,6 +1,7 @@
 /* The online handbook reader (/read/). Loaded in addition to site.css. */
 
-.sr-only {
+.sr-only,
+.js-reader .reader__head h1 {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -15,65 +16,32 @@
 /* Plain slate header bar instead of the photo banner, so the book gets the room. */
 .banner--bar { min-height: 0; }
 .banner--bar::after { display: none; }
-.banner--bar .site-header { padding-block: 0.75rem; }
+.banner--bar .site-header { padding-block: 0.6rem; }
+
+/* ---------- Without JavaScript: the pages simply stack and scroll ---------- */
 
 .reader {
-  --chrome: 13rem; /* height of everything above and below the book on a normal screen */
-  overflow-anchor: none;
   width: 100%;
   padding: 1rem clamp(0.75rem, 2vw, 2rem) 2rem;
   line-height: 1.4;
 }
-
 .reader__head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.25rem 2rem;
-  max-width: 1800px;
-  margin: 0 auto 0.6rem;
+  max-width: 900px;
+  margin: 0 auto 0.75rem;
 }
 .reader__head h1 { margin: 0; font-size: clamp(1.15rem, 2.2vw, 1.6rem); }
 .reader__size { font-weight: 400; white-space: nowrap; }
 
-/* The controls only do anything with JavaScript, so they stay hidden without it.
-   The .js-reader class is set before the page is drawn, so nothing jumps. */
-.reader__controls { display: none; }
-.js-reader .reader__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  max-width: 1800px;
-  margin: 0 auto 0.6rem;
-}
-.reader__slider { flex: 1 1 10rem; display: flex; }
-.reader__slider input { width: 100%; min-height: 1.75rem; accent-color: var(--ink); }
-.reader__status { min-width: 9.5em; font-variant-numeric: tabular-nums; }
-.reader__toc select,
-.reader__button {
-  min-height: 2.5rem;
-  padding: 0.4rem 0.75rem;
-  border: 2px solid var(--ink);
-  border-radius: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font: inherit;
-  cursor: pointer;
-}
-.reader__toc select { max-width: 100%; }
-.reader__button:hover { background: var(--ink); color: #fff; }
-.reader__button:disabled { opacity: 0.35; cursor: default; }
-.reader__button:disabled:hover { background: var(--paper); color: var(--ink); }
-.reader__zoom { display: inline-flex; gap: 0.25rem; }
-.reader__zoom .reader__button { min-width: 2.75rem; }
+/* The controls and arrows only do anything with JavaScript. The .js-reader
+   class is set before the page is drawn, so nothing jumps when they appear. */
+.reader__controls, .reader__arrow { display: none; }
 
-/* ---------- Without JavaScript: the pages simply stack and scroll ---------- */
-
-.reader__stage-wrap { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 .reader__viewport { width: 100%; }
-
 .book {
   width: 100%;
   max-width: 900px;
@@ -101,20 +69,51 @@ a.hot:hover, a.hot:focus-visible,
 }
 .hot-group:focus-visible { outline: none; }
 
-/* ---------- With JavaScript: a book you page through ---------- */
+/* ---------- With JavaScript: a book that fills the screen ---------- */
 
-/* The viewport is the fixed window the book is seen through. Zooming makes the
-   book bigger than the window, and the window scrolls. */
+/* Header plus reader take exactly one screen; the footer sits below it. */
+.js-reader .reader-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 22rem;
+}
+/* The stage. The book is sized from the stage's own width and height (the
+   cqw and cqh units below), and the arrows and control bar lie over it. */
+.js-reader .reader {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+  overflow-anchor: none;
+  container-type: size;
+  background: var(--page);
+}
+.js-reader .reader__head { margin: 0; }
+.js-reader .reader__head .reader__download { display: none; } /* it is in the control bar instead */
+
+.js-reader .reader__stage-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The viewport is the window the book is seen through. Zooming makes the book
+   bigger than the window, and the window scrolls. */
 .js-reader .reader__viewport {
   flex: none;
   aspect-ratio: 8 / 3;
-  width: min(100% - 6.5rem, (100vh - var(--chrome)) * 8 / 3);
-  width: min(100% - 6.5rem, (100dvh - var(--chrome)) * 8 / 3);
-  min-width: min(100% - 6.5rem, 36rem);
+  width: min(100% - 1rem, (100vh - 6rem) * 8 / 3); /* for browsers without container units */
+  width: min(100cqw - 1rem, (100cqh - 1rem) * 8 / 3);
   overflow: hidden;
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.2);
 }
-.js-reader .reader__viewport:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.js-reader .reader__viewport:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
 .js-reader .book {
   position: relative;
   max-width: none;
@@ -174,15 +173,27 @@ a.hot:hover, a.hot:focus-visible,
 .leaf__face img { width: 100%; height: 100%; }
 .leaf__face--back { transform: rotateY(180deg); }
 
-/* Zoom levels (set by the + and - buttons, a double-click, or the + and - keys).
-   When zoomed the window grows to use the height of the screen. */
-.js-reader .reader__viewport.is-zoomed {
+/* One page at a time on anything narrower than a laptop. */
+.js-reader.is-single .reader__viewport {
+  aspect-ratio: 4 / 3;
+  width: min(100% - 1rem, (100vh - 6rem) * 4 / 3);
+  width: min(100cqw - 1rem, (100cqh - 1rem) * 4 / 3);
+}
+.js-reader.is-single .book { aspect-ratio: 4 / 3; }
+.js-reader.is-single .page { left: 0; width: 100%; }
+.js-reader.is-single .page.is-current { display: block; animation: page-in 0.25s ease-out; }
+@keyframes page-in { from { opacity: 0; } }
+
+/* Zoom levels (the + and - buttons, a double-click, or the + and - keys).
+   When zoomed the window is the whole stage. */
+.js-reader .reader__viewport.is-zoomed,
+.js-reader.is-single .reader__viewport.is-zoomed {
   aspect-ratio: auto;
-  height: calc(100vh - var(--chrome));
-  height: calc(100dvh - var(--chrome));
-  min-height: 14rem;
+  width: 100%;
+  height: 100%;
   overflow: auto;
   overscroll-behavior: contain;
+  box-shadow: none;
   cursor: grab;
 }
 .js-reader .reader__viewport.is-zoomed.is-dragging { cursor: grabbing; }
@@ -191,70 +202,105 @@ a.hot:hover, a.hot:focus-visible,
 .js-reader .zoom-2 .book { width: 200%; }
 .js-reader .zoom-3 .book { width: 300%; }
 
-/* One page at a time on anything narrower than a laptop. */
-.js-reader.is-single .reader__viewport {
-  aspect-ratio: 4 / 3;
-  width: min(100%, (100vh - var(--chrome)) * 4 / 3);
-  width: min(100%, (100dvh - var(--chrome)) * 4 / 3);
-  min-width: min(100%, 18rem);
-}
-.js-reader.is-single .reader__viewport.is-zoomed { aspect-ratio: auto; width: 100%; }
-.js-reader.is-single .book { aspect-ratio: 4 / 3; }
-.js-reader.is-single .page { left: 0; width: 100%; }
-.js-reader.is-single .page.is-current { display: block; animation: page-in 0.25s ease-out; }
-@keyframes page-in { from { opacity: 0; } }
-
-.reader__arrow { display: none; }
+/* Arrows lie over the left and right edges of the stage. */
 .js-reader .reader__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 6;
   display: block;
-  flex: none;
   width: 2.75rem;
   height: 2.75rem;
+  margin-top: -1.375rem;
   padding: 0 0 0.3rem;
   border: 2px solid var(--ink);
   border-radius: 50%;
-  background: var(--paper);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--ink);
   font: 400 1.9rem/1 Georgia, serif;
   cursor: pointer;
 }
+.reader__arrow--prev { left: 0.5rem; }
+.reader__arrow--next { right: 0.5rem; }
 .reader__arrow:hover { background: var(--ink); color: #fff; }
 .reader__arrow[aria-disabled="true"] { opacity: 0.3; cursor: default; }
-.reader__arrow[aria-disabled="true"]:hover { background: var(--paper); color: var(--ink); }
+.reader__arrow[aria-disabled="true"]:hover { background: rgba(255, 255, 255, 0.9); color: var(--ink); }
 
-.js-reader.is-single .reader__stage-wrap { flex-wrap: wrap; }
-.js-reader.is-single .reader__viewport { order: -1; }
-.js-reader.is-single .reader__arrow { margin: 0.75rem 1.5rem 0; }
+/* The control bar lies over the bottom of the stage. When it would cover part
+   of the book it fades away after a moment and comes back when the mouse
+   moves, the screen is tapped, or a key is pressed. */
+.js-reader .reader__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(47, 50, 64, 0.95);
+  color: #fff;
+  font-size: 0.9rem;
+  transition: opacity 0.25s;
+}
+.js-reader .reader--idle .reader__controls { opacity: 0; pointer-events: none; }
+.js-reader .reader--idle .reader__controls:focus-within { opacity: 1; pointer-events: auto; }
+.reader__controls :focus-visible { outline-color: var(--sand); }
+.reader__slider { flex: 1 1 8rem; display: flex; }
+.reader__slider input { width: 100%; min-height: 1.75rem; accent-color: var(--sand); }
+.reader__status { min-width: 9em; font-variant-numeric: tabular-nums; }
+.reader__toc select,
+.reader__button {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.7rem;
+  border: 2px solid #fff;
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.reader__toc select { max-width: 100%; }
+.reader__button:hover { background: var(--sand); }
+.reader__button:disabled { opacity: 0.4; cursor: default; }
+.reader__button:disabled:hover { background: var(--paper); }
+.reader__zoom { display: inline-flex; gap: 0.25rem; }
+.reader__zoom .reader__button { min-width: 2.5rem; }
+.reader__download--bar { color: #fff; text-decoration-thickness: 1px; }
 
-/* Short screens (phones held sideways): size the book to the screen height
-   and let the page scroll to it, rather than squeezing it under the header. */
+/* Short screens (phones held sideways): a slimmer header leaves more for the book. */
 @media (max-height: 34rem) {
-  .reader { --chrome: 1rem; }
+  .reader-page .site-header { flex-direction: row; align-items: center; padding-block: 0.3rem; }
+  .reader-page .site-tagline { display: none; }
+  .reader-page .site-title__name { font-size: 1rem; }
+  .reader-page .site-nav a { padding: 0.2rem 0; font-size: 0.8rem; }
+  .js-reader .reader-screen { min-height: 16rem; }
 }
 
-/* Full screen */
-.reader:fullscreen { --chrome: 8rem; overflow: auto; padding-top: 1rem; background: var(--page); }
-.is-single .reader:fullscreen { --chrome: 12rem; }
+.reader:fullscreen { background: var(--page); }
 
 @media (prefers-reduced-motion: reduce) {
   .js-reader.is-single .page.is-current { animation: none; }
+  .js-reader .reader__controls { transition: none; }
 }
 
 /* Printing gives every page, one after another, with or without JavaScript. */
 @media print {
-  .reader__controls, .js-reader .reader__controls,
-  .reader__arrow, .js-reader .reader__arrow,
-  .reader__download, .leaf { display: none; }
+  .js-reader .reader__controls, .js-reader .reader__arrow, .reader__download, .leaf { display: none; }
+  .js-reader .reader-screen { display: block; height: auto; min-height: 0; }
+  .js-reader .reader { display: block; overflow: visible; container-type: normal; }
+  .js-reader .reader__stage-wrap { display: block; }
   .js-reader .reader__viewport,
-  .js-reader .reader__viewport.is-zoomed {
+  .js-reader .reader__viewport.is-zoomed,
+  .js-reader.is-single .reader__viewport {
     aspect-ratio: auto;
     width: 100%;
     height: auto;
-    min-width: 0;
     overflow: visible;
     box-shadow: none;
   }
-  .js-reader .book { width: 100%; aspect-ratio: auto; perspective: none; }
+  .js-reader .book, .js-reader.is-single .book { width: 100%; aspect-ratio: auto; perspective: none; }
   .js-reader .page,
   .js-reader.is-single .page {
     position: relative;

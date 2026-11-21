@@ -29,6 +29,7 @@
 <body class="reader-page">
   <a class="skip-link" href="#main">Skip to main content</a>
 
+  <div class="reader-screen">
   <header class="banner banner--bar">
     <!-- MENU: repeated in every page; for this page, change it in tools/build-reader.py -->
     <div class="site-header">
@@ -52,40 +53,6 @@
       <a class="reader__download" href="/read/park-county-good-neighbor-handbook.pdf" download>Download the PDF <span class="reader__size">(8 MB)</span></a>
     </div>
     <p class="sr-only">If you use a screen reader, the PDF download is the best way to read the handbook: it is tagged so that headings and text are read in the right order. The page text included below is extracted automatically and may be out of order.</p>
-
-    <div class="reader__controls" id="reader-controls">
-      <label class="reader__toc">
-        <span class="sr-only">Section</span>
-        <select id="reader-toc">
-            <option value="1">Cover</option>
-            <option value="5">Table of Contents</option>
-            <option value="6">Welcome</option>
-            <option value="8">Becoming Park County</option>
-            <option value="12">Water</option>
-            <option value="20">Agriculture &amp; Working Lands</option>
-            <option value="24">Small Acreage, Big Impact</option>
-            <option value="30">Stars &amp; Soil</option>
-            <option value="32">Wildlife Migration</option>
-            <option value="34">Living with Wildlife</option>
-            <option value="40">Wildlife &amp; Roadways</option>
-            <option value="42">Stewarding the Land</option>
-            <option value="46">Invasive Weeds</option>
-            <option value="50">Recreation</option>
-            <option value="56">Landowner Toolkit</option>
-            <option value="58">Additional Resources</option>
-        </select>
-      </label>
-      <label class="reader__slider">
-        <span class="sr-only">Page</span>
-        <input type="range" id="reader-slider" min="1" max="60" value="1" step="1">
-      </label>
-      <output id="reader-status" class="reader__status" aria-live="polite">Page 1 of 60</output>
-      <span class="reader__zoom" role="group" aria-label="Zoom">
-        <button type="button" id="reader-zoom-out" class="reader__button" aria-label="Zoom out" disabled>&minus;</button>
-        <button type="button" id="reader-zoom-in" class="reader__button" aria-label="Zoom in">+</button>
-      </span>
-      <button type="button" id="reader-full" class="reader__button">Full screen</button>
-    </div>
 
     <div class="reader__stage-wrap" id="reader-wrap">
       <button type="button" class="reader__arrow reader__arrow--prev" id="reader-prev" aria-label="Previous page"><span aria-hidden="true">&#8249;</span></button>
@@ -336,7 +303,43 @@
       </div>
       <button type="button" class="reader__arrow reader__arrow--next" id="reader-next" aria-label="Next page"><span aria-hidden="true">&#8250;</span></button>
     </div>
+
+    <div class="reader__controls" id="reader-controls">
+      <label class="reader__toc">
+        <span class="sr-only">Section</span>
+        <select id="reader-toc">
+            <option value="1">Cover</option>
+            <option value="5">Table of Contents</option>
+            <option value="6">Welcome</option>
+            <option value="8">Becoming Park County</option>
+            <option value="12">Water</option>
+            <option value="20">Agriculture &amp; Working Lands</option>
+            <option value="24">Small Acreage, Big Impact</option>
+            <option value="30">Stars &amp; Soil</option>
+            <option value="32">Wildlife Migration</option>
+            <option value="34">Living with Wildlife</option>
+            <option value="40">Wildlife &amp; Roadways</option>
+            <option value="42">Stewarding the Land</option>
+            <option value="46">Invasive Weeds</option>
+            <option value="50">Recreation</option>
+            <option value="56">Landowner Toolkit</option>
+            <option value="58">Additional Resources</option>
+        </select>
+      </label>
+      <label class="reader__slider">
+        <span class="sr-only">Page</span>
+        <input type="range" id="reader-slider" min="1" max="60" value="1" step="1">
+      </label>
+      <output id="reader-status" class="reader__status" aria-live="polite">Page 1 of 60</output>
+      <span class="reader__zoom" role="group" aria-label="Zoom">
+        <button type="button" id="reader-zoom-out" class="reader__button" aria-label="Zoom out" disabled>&minus;</button>
+        <button type="button" id="reader-zoom-in" class="reader__button" aria-label="Zoom in">+</button>
+      </span>
+      <button type="button" id="reader-full" class="reader__button">Full screen</button>
+      <a class="reader__download reader__download--bar" href="/read/park-county-good-neighbor-handbook.pdf" download>Download the PDF <span class="reader__size">(8 MB)</span></a>
+    </div>
   </main>
+  </div>
 
   <footer class="site-footer">
     <p>© 2026 <a href="https://eastyellowstonecollaborative.org">East Yellowstone Collaborative</a></p>

@@ -34,6 +34,7 @@
 
     // These are optional: the reader still works if one is missing.
     var main = document.getElementById("main");
+    var controls = document.getElementById("reader-controls");
     var slider = document.getElementById("reader-slider");
     var toc = document.getElementById("reader-toc");
     var fullBtn = document.getElementById("reader-full");
@@ -122,6 +123,7 @@
 
       preload(current);
       chooseImages();
+      wake();
       // Keep the address in step with the page, but not on first load: a "#p1"
       // there would make the browser scroll down to the book.
       if (started && window.history && history.replaceState) history.replaceState(null, "", "#p" + first);
@@ -207,6 +209,26 @@
       go(visible()[0] - 1, true);
     }
 
+    // ---- the control bar ----
+    // The bar lies over the bottom of the stage. Where it covers part of the
+    // book it fades out after a moment, and any movement brings it back.
+    var idleTimer = null;
+    function wake() {
+      if (!main || !controls) return;
+      main.classList.remove("reader--idle");
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(function () {
+        var covering = controls.getBoundingClientRect().top < viewport.getBoundingClientRect().bottom - 1;
+        if (!covering) return;
+        if (controls.contains(document.activeElement) || controls.matches(":hover")) { wake(); return; }
+        main.classList.add("reader--idle");
+      }, 2500);
+    }
+    if (main) ["pointermove", "pointerdown", "keydown", "focusin"].forEach(function (name) {
+      main.addEventListener(name, wake, { passive: true });
+    });
+    window.addEventListener("resize", wake);
+
     function fromHash() {
       var m = /^#p(\d+)$/.exec(window.location.hash);
       return m ? clamp(parseInt(m[1], 10)) : null;
@@ -231,6 +253,7 @@
       if (zoomOutBtn) zoomOutBtn.disabled = zoom === 0;
       if (zoomInBtn) zoomInBtn.disabled = zoom === ZOOMS.length - 1;
       chooseImages();
+      wake();
     }
     function onLink(el) { return el && el.closest && el.closest(".hot, .hot-group"); }
 
